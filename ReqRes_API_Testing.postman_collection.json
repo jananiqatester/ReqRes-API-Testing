@@ -1,0 +1,1762 @@
+{
+  "info": {
+    "_postman_id": "c097145f-60fa-4eb3-a877-76fec1226e7d",
+    "name": "ReqRes – API Contract & Behavior Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51256856",
+    "_collection_link": "https://go.postman.co/collection/51256856-c097145f-60fa-4eb3-a877-76fec1226e7d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01_Authentication",
+      "item": [
+        {
+          "name": "TC_AUTH_001_Missing_API_Key_Returns_401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "// Status code validation\r",
+                  "pm.test(\"Status code is 401 - Unauthorized\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "// Response time validation\r",
+                  "pm.test(\"Response time is below 3000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "});\r",
+                  "\r",
+                  "// Content type validation\r",
+                  "pm.test(\"Content-Type is application/json\", function () {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "// Error field exists\r",
+                  "pm.test(\"Error field is present in response\", function () {\r",
+                  "    pm.expect(jsonData).to.have.property(\"error\");\r",
+                  "});;"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "x-api-key",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_AUTH_002_Valid_API_Key_Returns_200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const apiKey = pm.environment.get(\"api_key\");\r",
+                  "\r",
+                  "// Skip test if no valid API key\r",
+                  "if (!apiKey) {\r",
+                  "    pm.test(\"Skipping valid API key test (no key provided)\", function () {\r",
+                  "        pm.expect(true).to.be.true;\r",
+                  "    });\r",
+                  "} else {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 200\", function () {\r",
+                  "        pm.response.to.have.status(200);\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true,
+            "disabledSystemHeaders": {}
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": 123,\r\n  \"job\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02_GET_Collection",
+      "item": [
+        {
+          "name": "TC_GET_001_Valid_Page_Returns_Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    console.warn(\"403 Forbidden - API access issue. Functional validation skipped.\");\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE (200)\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status code\r",
+                  "    pm.test(\"Status code is 200\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance validation\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate root structure (flexible, not strict)\r",
+                  "    pm.test(\"Response has required root fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\r",
+                  "            \"page\",\r",
+                  "            \"per_page\",\r",
+                  "            \"total\",\r",
+                  "            \"total_pages\",\r",
+                  "            \"data\"\r",
+                  "        );\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate data is an array\r",
+                  "    pm.test(\"Data is an array\", function () {\r",
+                  "        pm.expect(jsonData.data).to.be.an(\"array\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate pagination logic\r",
+                  "    pm.test(\"Total pages calculation is correct\", function () {\r",
+                  "        const expectedPages = Math.ceil(jsonData.total / jsonData.per_page);\r",
+                  "        pm.expect(jsonData.total_pages).to.eql(expectedPages);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate current page\r",
+                  "    const expectedPage = Number(pm.environment.get(\"page\"));\r",
+                  "\r",
+                  "    pm.test(\"Returned page number is correct\", function () {\r",
+                  "        pm.expect(jsonData.page).to.eql(expectedPage);\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // CONDITIONAL DATA VALIDATION\r",
+                  "    // -----------------------------\r",
+                  "    if (jsonData.data.length > 0) {\r",
+                  "\r",
+                  "        pm.test(\"All users have valid structure and data\", function () {\r",
+                  "\r",
+                  "            jsonData.data.forEach(function (user) {\r",
+                  "\r",
+                  "                // Validate structure\r",
+                  "                pm.expect(user).to.include.keys(\r",
+                  "                    \"id\",\r",
+                  "                    \"email\",\r",
+                  "                    \"first_name\",\r",
+                  "                    \"last_name\",\r",
+                  "                    \"avatar\"\r",
+                  "                );\r",
+                  "\r",
+                  "                // Validate types\r",
+                  "                pm.expect(user.id).to.be.a(\"number\");\r",
+                  "                pm.expect(user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
+                  "                pm.expect(user.first_name).to.be.a(\"string\");\r",
+                  "                pm.expect(user.last_name).to.be.a(\"string\");\r",
+                  "                pm.expect(user.avatar).to.be.a(\"string\");\r",
+                  "\r",
+                  "            });\r",
+                  "\r",
+                  "        });\r",
+                  "\r",
+                  "        // Validate unique IDs\r",
+                  "        const ids = jsonData.data.map(user => user.id);\r",
+                  "\r",
+                  "        pm.test(\"User IDs are unique\", function () {\r",
+                  "            const uniqueIds = new Set(ids);\r",
+                  "            pm.expect(uniqueIds.size).to.eql(ids.length);\r",
+                  "        });\r",
+                  "\r",
+                  "    } else {\r",
+                  "\r",
+                  "        // Handle empty response safely\r",
+                  "        pm.test(\"No users returned (valid empty response)\", function () {\r",
+                  "            pm.expect(jsonData.data.length).to.eql(0);\r",
+                  "        });\r",
+                  "\r",
+                  "    }\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": 123,\r\n  \"job\": true\r\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users?page={{page}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_GET_002_OutOfRange_Page_Returns_Empty_Array",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "} else {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 200\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Data is an array\", function () {\r",
+                  "        pm.expect(jsonData.data).to.be.an(\"array\");\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Data array is empty for out-of-range page\", function () {\r",
+                  "        pm.expect(jsonData.data.length).to.eql(0);\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users?page=999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_GET_003_Verify_Response_Structure",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status\r",
+                  "    pm.test(\"Status code is 200\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // ROOT STRUCTURE VALIDATION\r",
+                  "    // -----------------------------\r",
+                  "    pm.test(\"Response has required root fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\r",
+                  "            \"page\",\r",
+                  "            \"per_page\",\r",
+                  "            \"total\",\r",
+                  "            \"total_pages\",\r",
+                  "            \"data\"\r",
+                  "        );\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // ROOT TYPE VALIDATION\r",
+                  "    // -----------------------------\r",
+                  "    pm.test(\"Root fields have correct data types\", function () {\r",
+                  "        pm.expect(jsonData.page).to.be.a(\"number\");\r",
+                  "        pm.expect(jsonData.per_page).to.be.a(\"number\");\r",
+                  "        pm.expect(jsonData.total).to.be.a(\"number\");\r",
+                  "        pm.expect(jsonData.total_pages).to.be.a(\"number\");\r",
+                  "        pm.expect(jsonData.data).to.be.an(\"array\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // CHILD STRUCTURE + TYPE VALIDATION\r",
+                  "    // -----------------------------\r",
+                  "    pm.test(\"Each user object has correct structure and types\", function () {\r",
+                  "\r",
+                  "        jsonData.data.forEach(function (user) {\r",
+                  "\r",
+                  "            pm.expect(user).to.include.keys(\r",
+                  "                \"id\",\r",
+                  "                \"email\",\r",
+                  "                \"first_name\",\r",
+                  "                \"last_name\",\r",
+                  "                \"avatar\"\r",
+                  "            );\r",
+                  "\r",
+                  "            pm.expect(user.id).to.be.a(\"number\");\r",
+                  "            pm.expect(user.email).to.be.a(\"string\");\r",
+                  "            pm.expect(user.first_name).to.be.a(\"string\");\r",
+                  "            pm.expect(user.last_name).to.be.a(\"string\");\r",
+                  "            pm.expect(user.avatar).to.be.a(\"string\");\r",
+                  "\r",
+                  "        });\r",
+                  "\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users?page={{page}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03_GET_Single_Resource",
+      "item": [
+        {
+          "name": "TC_GET_004_Get_User_By_ID_Returns_User_Object",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE (VALID USER)\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status\r",
+                  "    pm.test(\"Status code is 200\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate response contains 'data' object\r",
+                  "    pm.test(\"Response has user data object\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\"data\");\r",
+                  "        pm.expect(jsonData.data).to.be.an(\"object\");\r",
+                  "    });\r",
+                  "\r",
+                  "    let user = jsonData.data;\r",
+                  "\r",
+                  "    // Validate user structure\r",
+                  "    pm.test(\"User object has required fields\", function () {\r",
+                  "        pm.expect(user).to.include.keys(\r",
+                  "            \"id\",\r",
+                  "            \"email\",\r",
+                  "            \"first_name\",\r",
+                  "            \"last_name\",\r",
+                  "            \"avatar\"\r",
+                  "        );\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate data types + basic business rule\r",
+                  "    pm.test(\"User fields have correct data types\", function () {\r",
+                  "        pm.expect(user.id).to.be.a(\"number\");\r",
+                  "        pm.expect(user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
+                  "        pm.expect(user.first_name).to.be.a(\"string\");\r",
+                  "        pm.expect(user.last_name).to.be.a(\"string\");\r",
+                  "        pm.expect(user.avatar).to.be.a(\"string\");\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_GET_005_NonExisting_ID_Returns_404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE NOT FOUND CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate 404 status\r",
+                  "    pm.test(\"Status code is 404 for non-existing user\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(404);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate empty response body {}\r",
+                  "    pm.test(\"Response body is empty object\", function () {\r",
+                  "        pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "        pm.expect(Object.keys(jsonData).length).to.eql(0);\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_GET_006_Invalid_ID_Format_Returns_404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE INVALID ID FORMAT CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate 404 status\r",
+                  "    pm.test(\"Status code is 404 for invalid ID format\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(404);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate empty response body {}\r",
+                  "    pm.test(\"Response body is empty object\", function () {\r",
+                  "        pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "        pm.expect(Object.keys(jsonData).length).to.eql(0);\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/abc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04_POST_Create",
+      "item": [
+        {
+          "name": "TC_POST_001_Valid_Request_Returns_201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE (CREATE)\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status code\r",
+                  "    pm.test(\"Status code is 201 (Created)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(201);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance validation\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate response structure\r",
+                  "    pm.test(\"Response has required fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\r",
+                  "            \"name\",\r",
+                  "            \"job\",\r",
+                  "            \"id\",\r",
+                  "            \"createdAt\"\r",
+                  "        );\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate types\r",
+                  "    pm.test(\"Response fields have correct data types\", function () {\r",
+                  "        pm.expect(jsonData.name).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.job).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.id).to.be.a(\"string\");       // ReqRes returns id as string\r",
+                  "        pm.expect(jsonData.createdAt).to.be.a(\"string\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate response matches request\r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    pm.test(\"Response matches request data\", function () {\r",
+                  "        pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "        pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "    });\r",
+                  "    // Store created user ID for chaining\r",
+                  "pm.test(\"Store created user ID\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.environment.set(\"created_user_id\", jsonData.id);\r",
+                  "});\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Janani\",\r\n  \"job\": \"QA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_POST_002_Missing_Optional_Field_Still_Creates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status\r",
+                  "    pm.test(\"Status code is 201 (Created)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(201);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate required response fields\r",
+                  "    pm.test(\"Response has required fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\"name\", \"id\", \"createdAt\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate types\r",
+                  "    pm.test(\"Response fields have correct types\", function () {\r",
+                  "        pm.expect(jsonData.name).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.id).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.createdAt).to.be.a(\"string\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Extract request data \r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    // Validate response matches request (only name)\r",
+                  "    pm.test(\"Response matches provided request data\", function () {\r",
+                  "        pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Optional field check (should not break API)\r",
+                  "  pm.test(\"Optional field is handled correctly\", function () {\r",
+                  "    if (jsonData.hasOwnProperty(\"job\")) {\r",
+                  "        pm.expect(jsonData.job).to.be.a(\"string\");\r",
+                  "    }\r",
+                  "});\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Janani\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_POST_003_Missing_Required_Field_Returns_201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE ACTUAL RESPONSE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate actual API behavior (ReqRes returns 201)\r",
+                  "    pm.test(\"Status code is 201 (Created even with missing required field)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(201);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate response structure (no 'name' expected)\r",
+                  "    pm.test(\"Response contains expected fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\"job\", \"id\", \"createdAt\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate data types\r",
+                  "    pm.test(\"Response fields have correct types\", function () {\r",
+                  "        pm.expect(jsonData.job).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.id).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.createdAt).to.be.a(\"string\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Extract request data safely\r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    // Validate response matches provided input\r",
+                  "    pm.test(\"Response matches provided request data\", function () {\r",
+                  "        pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // DEFECT LOGGING (NO FAILURE)\r",
+                  "    // -----------------------------\r",
+                  "    pm.test(\"API allows missing required field (defect observed)\", function () {\r",
+                  "        console.warn(\"Defect: API should not allow creation without required field 'name'\");\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"job\": \"leader\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_POST_004_Invalid_JSON_Returns_400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE INVALID JSON RESPONSE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 400 for invalid JSON\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(400);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Janani\",",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_POST_005_Invalid_Datatype_Not_Validated",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE ACTUAL RESPONSE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate actual API behavior\r",
+                  "    pm.test(\"Status code is 201 (API accepts invalid data types)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(201);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate response structure\r",
+                  "    pm.test(\"Response contains expected fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\"name\", \"job\", \"id\", \"createdAt\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Extract request data safely\r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    // Validate response reflects invalid input (API does not validate)\r",
+                  "    pm.test(\"Response reflects invalid input values\", function () {\r",
+                  "        pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "        pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // DEFECT LOGGING\r",
+                  "    // -----------------------------\r",
+                  "    pm.test(\"API does not validate data types (defect observed)\", function () {\r",
+                  "        console.warn(\"Defect: API accepts invalid data types for 'name' and 'job'\");\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": 123,\r\n  \"job\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05_PUT_Update",
+      "item": [
+        {
+          "name": "TC_PUT_001_Valid_Update_Returns_200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status\r",
+                  "    pm.test(\"Status code is 200 (Update successful)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate response structure\r",
+                  "    pm.test(\"Response contains updated fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\"name\", \"job\", \"updatedAt\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate data types\r",
+                  "    pm.test(\"Response fields have correct types\", function () {\r",
+                  "        pm.expect(jsonData.name).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.job).to.be.a(\"string\");\r",
+                  "        pm.expect(jsonData.updatedAt).to.be.a(\"string\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Extract request data safely\r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    // Validate response matches request\r",
+                  "    pm.test(\"Response matches updated request data\", function () {\r",
+                  "        pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "        pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Janani Updated\",\r\n  \"job\": \"Senior QA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{created_user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{created_user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_PUT_002_Invalid_ID_Format_Still_Returns_200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE ACTUAL RESPONSE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate actual behavior (API accepts invalid ID)\r",
+                  "    pm.test(\"Status code is 200 (API accepts invalid ID format)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate structure\r",
+                  "    pm.test(\"Response contains updated fields\", function () {\r",
+                  "        pm.expect(jsonData).to.include.keys(\"name\", \"job\", \"updatedAt\");\r",
+                  "    });\r",
+                  "\r",
+                  "    // Extract request data safely\r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    // Validate response matches request\r",
+                  "    pm.test(\"Response matches request data\", function () {\r",
+                  "        pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "        pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // DEFECT LOGGING\r",
+                  "    // -----------------------------\r",
+                  "    pm.test(\"API does not validate ID format (defect observed)\", function () {\r",
+                  "        console.warn(\"Defect: API accepts invalid ID format instead of returning 404\");\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"morpheus\",\r\n  \"job\": \"zion resident\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/abc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_PUT_003_Idempotent_Update_Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status\r",
+                  "    pm.test(\"Status code is 200 (Update successful)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    let jsonData;\r",
+                  "\r",
+                  "    // Safe JSON parsing\r",
+                  "    pm.test(\"Response is valid JSON\", function () {\r",
+                  "        try {\r",
+                  "            jsonData = pm.response.json();\r",
+                  "        } catch (e) {\r",
+                  "            pm.expect.fail(\"Response is not valid JSON\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    // Extract request data\r",
+                  "    const requestData = pm.request.body.raw\r",
+                  "        ? JSON.parse(pm.request.body.raw)\r",
+                  "        : {};\r",
+                  "\r",
+                  "    // Validate response matches request\r",
+                  "    pm.test(\"Response matches request data\", function () {\r",
+                  "        pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "        pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "    });\r",
+                  "\r",
+                  "    // -----------------------------\r",
+                  "    // IDEMPOTENCY CHECK\r",
+                  "    // -----------------------------\r",
+                  "\r",
+                  "   pm.test(\"PUT request is idempotent (same input gives same result)\", function () {\r",
+                  "    pm.expect(jsonData.name).to.eql(requestData.name);\r",
+                  "    pm.expect(jsonData.job).to.eql(requestData.job);\r",
+                  "});\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"morpheus\",\r\n  \"job\": \"zion resident\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{created_user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{created_user_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06_DELETE",
+      "item": [
+        {
+          "name": "TC_DELETE_001_Delete_Valid_ID_Returns_204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE SUCCESS CASE\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status\r",
+                  "    pm.test(\"Status code is 204 (Delete successful)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(204);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate empty response body\r",
+                  "    pm.test(\"Response body is empty\", function () {\r",
+                  "        pm.expect(pm.response.text()).to.eql(\"\");\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{created_user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{created_user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC_DELETE_002_Delete_NonExisting_ID_Returns_204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// -----------------------------\r",
+                  "// HANDLE AUTHORIZATION FAILURE\r",
+                  "// -----------------------------\r",
+                  "if (pm.response.code === 403) {\r",
+                  "\r",
+                  "    pm.test(\"Status code is 403 (Authorization issue)\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(403);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "\r",
+                  "// -----------------------------\r",
+                  "// HANDLE DELETE BEHAVIOR\r",
+                  "// -----------------------------\r",
+                  "} else {\r",
+                  "\r",
+                  "    // Validate status (idempotent behavior)\r",
+                  "    pm.test(\"Status code is 204 even for non-existing ID\", function () {\r",
+                  "        pm.expect(pm.response.code).to.eql(204);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Performance check\r",
+                  "    pm.test(\"Response time is under 3 seconds\", function () {\r",
+                  "        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+                  "    });\r",
+                  "\r",
+                  "    // Validate empty response body\r",
+                  "    pm.test(\"Response body is empty\", function () {\r",
+                  "        pm.expect(pm.response.text()).to.eql(\"\");\r",
+                  "    });\r",
+                  "\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "x-api-key",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

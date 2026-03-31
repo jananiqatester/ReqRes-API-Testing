@@ -1,0 +1,40 @@
+{
+	"id": "2843184e-388a-4cff-be85-3d9ac6b38bd0",
+	"name": "qa",
+	"values": [
+		{
+			"key": "created_user_id",
+			"value": "",
+			"type": "any",
+			"enabled": false
+		},
+		{
+			"key": "base_url",
+			"value": "https://reqres.in",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "user_id",
+			"value": "2",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "page",
+			"value": "2",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "api_key",
+			"value": "reqres_e298a9b9ce6e41d28fc5190685f34d4a",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-03-26T10:50:26.931Z",
+	"_postman_exported_using": "Postman/12.3.3"
+}
