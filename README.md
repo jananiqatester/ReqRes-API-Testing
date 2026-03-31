@@ -1,170 +1,93 @@
-# \# ReqRes API Testing Project
+# ReqRes API Testing Project
 
-##### 
+## 📌 Project Overview
 
-## \## 📌 Project Overview
+This project demonstrates API testing of the public ReqRes API using Postman. It covers functional validation, status code verification, and basic contract checks.
 
-##### 
+The goal of this project is to simulate real-world API testing scenarios and showcase QA skills relevant for backend testing roles.
 
-##### This project demonstrates API testing of the public ReqRes API using Postman. It covers functional validation, status code verification, and basic contract checks.
+---
 
-##### 
+## 🧪 Scope of Testing
 
-##### The goal of this project is to simulate real-world API testing scenarios and showcase QA skills relevant for backend testing roles.
+* Authentication APIs
+* GET (List Users, Single User)
+* POST (Create User)
+* PUT (Update User)
+* DELETE (Delete User)
 
-##### 
+---
 
-##### \---
+## ⚙️ Tools Used
 
-##### 
+* Postman
+* Newman (CLI execution)
+* HTML Reporter
 
-## \## 🧪 Scope of Testing
+---
 
-##### 
+## 📂 Project Structure
 
-##### \* Authentication APIs
+* `collections/` → Postman collection files
+* `environments/` → Environment configuration
+* `reports/` → Generated reports (ignored in Git)
 
-##### \* GET (List Users, Single User)
+---
 
-##### \* POST (Create User)
+## ✅ Test Coverage
 
-##### \* PUT (Update User)
+* Status code validation (200, 201, 204, etc.)
+* Response body validation
+* Data consistency checks
+* Negative scenarios (invalid inputs)
 
-##### \* DELETE (Delete User)
+---
 
-##### 
+## ▶️ How to Run
 
-##### \---
+### Using Postman
 
-##### 
+1. Import collection and environment
+2. Run using Collection Runner
 
-## \## ⚙️ Tools Used
+### Using Newman
 
-##### 
+```
+newman run collections/ReqRes_API_Testing.postman_collection.json -e environments/qa_environment.json -r html
+```
 
-##### \* Postman
+---
 
-##### \* Newman (for CLI execution)
+## 📊 Test Execution
 
-##### \* HTML Reporter
+HTML report is generated using Newman during test execution.
 
-##### 
+> Note: Reports are dynamically generated and not stored in the repository.
 
-##### \---
+---
 
-##### 
+## 🎯 Key Highlights
 
-## \## 📂 Project Structure
+* Structured API test cases
+* Real-world API testing scenarios
+* Clean project organization
+* Command-line test execution using Newman
 
-##### 
+---
 
-##### \* `01\_Authentication` → Auth related test cases
+## 🚀 Future Improvements
 
-##### \* `02\_GET\_Collection` → Fetch multiple resources
+* Integrate API tests with CI/CD tools like GitHub Actions
+* Add JSON schema validation for response structure verification
+* Implement data-driven testing using external data files
+* Enhance negative test coverage for edge cases
+* Support multiple environments (Dev, QA, Prod)
 
-##### \* `03\_GET\_Single\_Resource` → Fetch single resource
+---
 
-##### \* `04\_POST\_Create` → Create new records
+## 👩‍💻 Author
 
-##### \* `05\_PUT\_Update` → Update existing records
+ Janani Jayarajan
+ QA Engineer |  ISTQB CTFL Certified | AT\*SQA AT\*API Certified 
 
-##### \* `06\_DELETE` → Delete operations
-
-##### 
-
-##### \---
-
-##### 
-
-## \## ✅ Test Coverage
-
-##### 
-
-##### \* Status code validation (200, 201, 204, etc.)
-
-##### \* Response body validation
-
-##### \* Data consistency checks
-
-##### \* Negative scenarios (invalid inputs)
-
-##### 
-
-##### \---
-
-##### 
-
-## \## ▶️ How to Run
-
-##### 
-
-### \### Using Postman
-
-##### 
-
-##### 1\. Import collection and environment
-
-##### 2\. Run using Collection Runner
-
-##### 
-
-### \### Using Newman
-
-##### 
-
-##### ```bash
-
-##### newman run ReqRes\_API\_Testing.postman\_collection.json -e qa\_environment.json -r html
-
-##### ```
-
-##### 
-
-##### \---
-
-##### 
-
-### \## 📊 Sample Report
-
-##### 
-
-##### HTML report is generated using Newman for test execution results.
-
-##### 
-
-##### \---
-
-##### 
-
-### \## 🎯 Key Highlights
-
-##### 
-
-##### \* Structured test cases
-
-##### \* Real API testing scenarios
-
-##### \* Clean organization of endpoints
-
-##### \* Ready for CI/CD integration
-
-##### 
-
-##### \---
-
-##### 
-
-##### \## 👩‍💻 Author
-
-##### 
-
-##### Janani Jayarajan
-
-##### QA Engineer |  ISTQB CTFL Certified | AT\*SQA AT\*API Certified 
-
-##### 
-
-##### \---
-
-##### 
 
