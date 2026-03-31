@@ -1,37 +1,170 @@
-# ReqRes API Testing Project
+# \# ReqRes API Testing Project
 
-## Overview
+##### 
 
-This project demonstrates API testing using Postman and Newman on the ReqRes public API.
+## \## 📌 Project Overview
 
-## Scope
+##### 
 
-* Functional API testing (GET, POST, PUT, DELETE)
-* Positive and negative test scenarios
-* Request chaining (POST → PUT → DELETE)
-* Environment-based variable handling
-* API contract validation
-* Basic performance validation (response time)
+##### This project demonstrates API testing of the public ReqRes API using Postman. It covers functional validation, status code verification, and basic contract checks.
 
-## Tools Used
+##### 
 
-* Postman
-* Newman (CLI)
-* htmlextra reporter
+##### The goal of this project is to simulate real-world API testing scenarios and showcase QA skills relevant for backend testing roles.
 
-## Key Highlights
+##### 
 
-* Implemented dynamic request chaining using environment variables
-* Validated API responses (status codes, structure, data types)
-* Identified API defects (missing validation, invalid datatype handling)
-* Generated automated HTML test reports using Newman
+##### \---
 
-## Execution
+##### 
 
-Run the following command:
+## \## 🧪 Scope of Testing
 
-newman run ReqRes_API_Testing.postman_collection.json -e qa_environment.json -r cli,htmlextra --reporter-htmlextra-export report.html
+##### 
 
-## Note
+##### \* Authentication APIs
 
-ReqRes is a mock API; POST/PUT/DELETE operations do not persist data.
+##### \* GET (List Users, Single User)
+
+##### \* POST (Create User)
+
+##### \* PUT (Update User)
+
+##### \* DELETE (Delete User)
+
+##### 
+
+##### \---
+
+##### 
+
+## \## ⚙️ Tools Used
+
+##### 
+
+##### \* Postman
+
+##### \* Newman (for CLI execution)
+
+##### \* HTML Reporter
+
+##### 
+
+##### \---
+
+##### 
+
+## \## 📂 Project Structure
+
+##### 
+
+##### \* `01\_Authentication` → Auth related test cases
+
+##### \* `02\_GET\_Collection` → Fetch multiple resources
+
+##### \* `03\_GET\_Single\_Resource` → Fetch single resource
+
+##### \* `04\_POST\_Create` → Create new records
+
+##### \* `05\_PUT\_Update` → Update existing records
+
+##### \* `06\_DELETE` → Delete operations
+
+##### 
+
+##### \---
+
+##### 
+
+## \## ✅ Test Coverage
+
+##### 
+
+##### \* Status code validation (200, 201, 204, etc.)
+
+##### \* Response body validation
+
+##### \* Data consistency checks
+
+##### \* Negative scenarios (invalid inputs)
+
+##### 
+
+##### \---
+
+##### 
+
+## \## ▶️ How to Run
+
+##### 
+
+### \### Using Postman
+
+##### 
+
+##### 1\. Import collection and environment
+
+##### 2\. Run using Collection Runner
+
+##### 
+
+### \### Using Newman
+
+##### 
+
+##### ```bash
+
+##### newman run ReqRes\_API\_Testing.postman\_collection.json -e qa\_environment.json -r html
+
+##### ```
+
+##### 
+
+##### \---
+
+##### 
+
+### \## 📊 Sample Report
+
+##### 
+
+##### HTML report is generated using Newman for test execution results.
+
+##### 
+
+##### \---
+
+##### 
+
+### \## 🎯 Key Highlights
+
+##### 
+
+##### \* Structured test cases
+
+##### \* Real API testing scenarios
+
+##### \* Clean organization of endpoints
+
+##### \* Ready for CI/CD integration
+
+##### 
+
+##### \---
+
+##### 
+
+##### \## 👩‍💻 Author
+
+##### 
+
+##### Janani Jayarajan
+
+##### QA Engineer |  ISTQB CTFL Certified | AT\*SQA AT\*API Certified 
+
+##### 
+
+##### \---
+
+##### 
+
